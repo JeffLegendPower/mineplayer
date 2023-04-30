@@ -1,0 +1,17 @@
+name: Build Mineplayer Client Mod on Push
+on:
+  push:
+    paths:
+      - 'MineplayerClient/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+      - name: Build with Gradle
+        working-directory: ./MineplayerClient
+        run: ./gradlew build

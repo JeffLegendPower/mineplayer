@@ -50,7 +50,6 @@ public class EnvStepper implements EnvContextHandler {
             JsonArray keyToggles = body.getAsJsonArray("key_toggles");
             JsonArray mouseToggles = body.getAsJsonArray("mouse_toggles");
             JsonObject mouseMovement = body.getAsJsonObject("mouse_move");
-            Main
             ClientPlayNetworking.registerGlobalReceiver(stepEnvIdentifier, this::stepReceiver);
 
             MineplayerClient.runOnMainThread(() -> {

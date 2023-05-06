@@ -7,20 +7,30 @@ from setuptools.command.install import install
 
 class BuildAndInstallCommand(install):
     def run(self):
-        # Clone the repository
-        # os.system("git clone https://github.com/JeffLegendPower/mineplayer")
-
         # Change to the repository directory
-        os.chdir("mineplayer/MineplayerClient")
+        try:
+            os.chdir("mineplayer/MineplayerClient")
+        except WindowsError:
+            raise Exception("1")
 
         # Build the JAR file using gradle
-        check_call(["./gradlew", "build"])
+        try:
+            check_call(["./gradlew", "build"])
+        except WindowsError:
+            raise Exception("2")
 
         # Copy the JAR file to the module directory
         # check if mineplayer dir already exists
-        if not os.path.isdir("mineplayer"):
-            os.makedirs("mineplayer", exist_ok=True)
-        os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")
+        try:
+            if not os.path.isdir("mineplayer"):
+                os.makedirs("mineplayer", exist_ok=True)
+        except WindowsError:
+            raise Exception("3")
+
+        try:
+            os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")
+        except WindowsError:
+            raise Exception("4")
 
         # Call the parent run() method to complete the installation
         install.run(self)
@@ -36,5 +46,5 @@ setup(
                       "tqdm>=4.65.0"],
     cmdclass={
         "install": BuildAndInstallCommand,
-    }
+    },
 )

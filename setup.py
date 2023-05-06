@@ -15,7 +15,12 @@ class BuildAndInstallCommand(install):
 
         # Build the JAR file using gradle
         try:
-            check_call(["./gradlew", "build"])
+            # check_call(["./gradlew", "build"])
+            # check if windows
+            if os.name == "nt":
+                self.gradle_build_windows()
+            else:
+                self.gradle_build_linux()
         except WindowsError:
             raise Exception("2")
 
@@ -34,6 +39,18 @@ class BuildAndInstallCommand(install):
 
         # Call the parent run() method to complete the installation
         install.run(self)
+
+    def gradle_build_windows(self):
+        try:
+            check_call(["gradlew.bat", "build"])
+        except WindowsError:
+            raise Exception("gradle build windows")
+
+    def gradle_build_linux(self):
+        try:
+            check_call(["./gradlew", "build"])
+        except WindowsError:
+            raise Exception("gradle build linux")
 
 
 setup(

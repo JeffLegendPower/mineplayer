@@ -8,7 +8,7 @@ from setuptools.command.install import install
 class BuildAndInstallCommand(install):
     def run(self):
         # Clone the repository
-        os.system("git clone https://github.com/JeffLegendPower/mineplayer")
+        # os.system("git clone https://github.com/JeffLegendPower/mineplayer")
 
         # Change to the repository directory
         os.chdir("mineplayer/MineplayerClient")
@@ -18,8 +18,8 @@ class BuildAndInstallCommand(install):
 
         # Copy the JAR file to the module directory
         # check if mineplayer dir already exists
-        # if not os.path.isdir("mineplayer"):
-        #     os.makedirs("mineplayer", exist_ok=True)
+        if not os.path.isdir("mineplayer"):
+            os.makedirs("mineplayer", exist_ok=True)
         os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")
 
         # Call the parent run() method to complete the installation

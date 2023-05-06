@@ -11,7 +11,7 @@ class BuildAndInstallCommand(install):
         # Change to the repository directory
         try:
             os.chdir("mineplayer/MineplayerClient")
-        except WindowsError:
+        except Exception:
             raise Exception("1")
 
         # Build the JAR file using gradle
@@ -22,7 +22,7 @@ class BuildAndInstallCommand(install):
                 self.gradle_build_windows()
             else:
                 self.gradle_build_linux()
-        except WindowsError:
+        except Exception:
             raise Exception("2")
 
         # Copy the JAR file to the module directory
@@ -30,12 +30,12 @@ class BuildAndInstallCommand(install):
         try:
             if not os.path.isdir("mineplayer"):
                 os.makedirs("mineplayer", exist_ok=True)
-        except WindowsError:
+        except Exception:
             raise Exception("3")
 
         try:
             os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")
-        except WindowsError:
+        except Exception:
             raise Exception("4")
 
         # Call the parent run() method to complete the installation
@@ -45,14 +45,14 @@ class BuildAndInstallCommand(install):
         try:
             # check_call(["gradlew.bat", "build"])
             subprocess.call("gradlew.bat build", shell=True)
-        except WindowsError:
+        except Exception:
             raise Exception("gradle build windows")
 
     def gradle_build_linux(self):
         try:
             # check_call(["./gradlew", "build"])
             subprocess.call("./gradlew build", shell=True)
-        except WindowsError:
+        except Exception:
             raise Exception("gradle build linux")
 
 

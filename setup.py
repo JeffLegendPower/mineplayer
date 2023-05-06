@@ -1,4 +1,5 @@
 import os
+import subprocess
 from subprocess import check_call
 
 from setuptools import setup
@@ -42,13 +43,15 @@ class BuildAndInstallCommand(install):
 
     def gradle_build_windows(self):
         try:
-            check_call(["gradlew.bat", "build"])
+            # check_call(["gradlew.bat", "build"])
+            subprocess.call("gradlew.bat build", shell=True)
         except WindowsError:
             raise Exception("gradle build windows")
 
     def gradle_build_linux(self):
         try:
-            check_call(["./gradlew", "build"])
+            # check_call(["./gradlew", "build"])
+            subprocess.call("./gradlew build", shell=True)
         except WindowsError:
             raise Exception("gradle build linux")
 

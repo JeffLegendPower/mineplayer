@@ -17,7 +17,9 @@ class BuildAndInstallCommand(install):
         check_call(["./gradlew", "build"])
 
         # Copy the JAR file to the module directory
-        os.makedirs("mineplayer", exist_ok=True)
+        # check if mineplayer dir already exists
+        if not os.path.isdir("mineplayer"):
+            os.makedirs("mineplayer", exist_ok=True)
         os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")
 
         # Call the parent run() method to complete the installation

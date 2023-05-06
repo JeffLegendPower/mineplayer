@@ -4,6 +4,7 @@ import tqdm
 import os
 import modrinth
 
+
 def install_minecraft():
     minecraft_directory = minecraft_launcher_lib.utils.get_minecraft_directory()
 
@@ -37,6 +38,7 @@ def install_minecraft():
     print("Installing mineplayer mod...")
     # TODO: Install mineplayer mod
 
+
 def install_mods(minecraft_dir):
     mods_dir = os.path.join(minecraft_dir, "mods")
     if not os.path.exists(mods_dir):
@@ -63,4 +65,6 @@ def install_mods(minecraft_dir):
     install_mod('H8CaAYZC', 'qH1xCwoC', 'starlight.jar')
     install_mod('5ZwdcRci', '8IFFeKYy', 'immediatelyfast.jar')
 
+
 def run_minecraft():
+    print('e')

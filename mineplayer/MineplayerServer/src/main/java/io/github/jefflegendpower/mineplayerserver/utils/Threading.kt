@@ -2,7 +2,6 @@ package io.github.jefflegendpower.mineplayerserver.utils
 
 import io.github.jefflegendpower.mineplayerserver.MineplayerServer
 import org.bukkit.Bukkit
-import org.bukkit.plugin.Plugin
 
 /**
  * Runs the given [runnable] on the main thread. Blocks until the runnable returns.

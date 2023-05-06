@@ -1,7 +1,6 @@
 package io.github.jefflegendpower.mineplayerserver.env.types
 
 import com.google.gson.JsonObject
-import com.onarandombox.MultiverseCore.MultiverseCore
 import io.github.jefflegendpower.mineplayerserver.MineplayerServer
 import io.github.jefflegendpower.mineplayerserver.assets.WorldRegistry
 import io.github.jefflegendpower.mineplayerserver.utils.LobbyWorld

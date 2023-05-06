@@ -1,7 +1,6 @@
 package io.github.jefflegendpower.mineplayerserver.assets
 
 import de.leonhard.storage.Json
-import de.leonhard.storage.Yaml
 import de.leonhard.storage.internal.FlatFile
 import io.github.jefflegendpower.mineplayerserver.MineplayerServer
 

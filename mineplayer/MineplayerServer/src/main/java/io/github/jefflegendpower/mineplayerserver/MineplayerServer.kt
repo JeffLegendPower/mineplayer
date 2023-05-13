@@ -18,7 +18,6 @@ class MineplayerServer : JavaPlugin() {
         instance = this
 
         mvCore = Bukkit.getServer().pluginManager.getPlugin("Multiverse-Core") as MultiverseCore
-
         EnvironmentFactory.registerEnvType("treechop", TreeChop::class.java)
         EnvironmentFactory.register(this)
     }

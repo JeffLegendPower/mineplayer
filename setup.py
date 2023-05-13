@@ -1,6 +1,5 @@
 import os
 import subprocess
-from subprocess import check_call
 
 from setuptools import setup
 from setuptools.command.install import install
@@ -18,12 +17,16 @@ class BuildAndInstallCommand(install):
         try:
             # check_call(["./gradlew", "build"])
             # check if windows
-            if os.name == "nt":
-                self.gradle_build_windows()
-            else:
-                self.gradle_build_linux()
+            gradlew = "gradlew.bat" if os.name == "nt" else "./gradlew"
+
+            mydir = os.path.abspath(os.path.dirname(__file__))
+            workdir = os.path.join(mydir, 'mineplayer', 'MineplayerClient')
+
         except Exception:
             raise Exception("2")
+
+        self.gradle_downloadAssets(gradlew, workdir)
+        self.gradle_build(gradlew, workdir)
 
         # Copy the JAR file to the module directory
         # check if mineplayer dir already exists
@@ -41,20 +44,24 @@ class BuildAndInstallCommand(install):
         # Call the parent run() method to complete the installation
         install.run(self)
 
-    def gradle_build_windows(self):
+    def gradle_downloadAssets(self, gradlew, workdir):
+        # This may fail on the first try. Try few times
+        n_trials = 3
+        for i in range(n_trials):
+            try:
+                subprocess.check_call('{} downloadAssets'.format(gradlew).split(' '), cwd=workdir)
+            except subprocess.CalledProcessError as e:
+                if i == n_trials - 1:
+                    raise e
+            else:
+                raise Exception("gradle downloadAssets")
+
+    def gradle_build(self, gradlew, workdir):
         try:
             # check_call(["gradlew.bat", "build"])
-            subprocess.call("gradlew.bat build", shell=True)
+            subprocess.call(f"{gradlew} clean build", shell=True, cwd=workdir)
         except Exception:
             raise Exception("gradle build windows")
-
-    def gradle_build_linux(self):
-        try:
-            # check_call(["./gradlew", "build"])
-            subprocess.call("./gradlew build", shell=True)
-        except Exception:
-            raise Exception("gradle build linux")
-
 
 setup(
     name="mineplayer",

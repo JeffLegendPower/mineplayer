@@ -50,11 +50,10 @@ class BuildAndInstallCommand(install):
         for i in range(n_trials):
             try:
                 subprocess.check_call('{} downloadAssets'.format(gradlew).split(' '), cwd=workdir)
+                return  # success
             except subprocess.CalledProcessError as e:
                 if i == n_trials - 1:
-                    raise e
-            else:
-                raise Exception("gradle downloadAssets")
+                    raise e  # failed on last trial
 
     def gradle_build(self, gradlew, workdir):
         try:
@@ -62,6 +61,7 @@ class BuildAndInstallCommand(install):
             subprocess.call(f"{gradlew} clean build", shell=True, cwd=workdir)
         except Exception:
             raise Exception("gradle build windows")
+
 
 setup(
     name="mineplayer",

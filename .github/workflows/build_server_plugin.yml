@@ -2,7 +2,7 @@ name: Build Mineplayer Server Plugin on Push
 on:
   push:
     paths:
-      - 'MineplayerServer/**'
+      - 'mineplayer/MineplayerServer/**'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,10 +15,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Build with Gradle
-        working-directory: ./MineplayerServer
+        working-directory: ./mineplayer/MineplayerServer
         run: gradle build
       - name: Upload build reports
         uses: actions/upload-artifact@v3
         with:
           name: build-reports
-          path: MineplayerServer/build/libs/
+          path: mineplayer/MineplayerServer/build/libs/

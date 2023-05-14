@@ -43,7 +43,7 @@ class BuildAndInstallCommand(install):
                 f"{copy} mineplayer/MineplayerClient/build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/".split(' '),
                 cwd=mydir, shell=True)
         except subprocess.CalledProcessError as e:
-            raise Exception(e.output)
+            raise Exception(e.stderr)
 
         # Call the parent run() method to complete the installation
         install.run(self)

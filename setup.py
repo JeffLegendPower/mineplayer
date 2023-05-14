@@ -33,8 +33,8 @@ class BuildAndInstallCommand(install):
         try:
             if not os.path.isdir("mineplayer"):
                 os.makedirs("mineplayer", exist_ok=True)
-        except subprocess.CalledProcessError as e:
-            raise Exception(e.output)
+        except Exception:
+            raise Exception("3")
 
         try:
             # os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")
@@ -42,8 +42,8 @@ class BuildAndInstallCommand(install):
             subprocess.check_call(
                 f"{copy} mineplayer/MineplayerClient/build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/".split(' '),
                 cwd=mydir, shell=True)
-        except Exception:
-            raise Exception("4")
+        except subprocess.CalledProcessError as e:
+            raise Exception(e.output)
 
         # Call the parent run() method to complete the installation
         install.run(self)

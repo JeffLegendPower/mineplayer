@@ -37,9 +37,10 @@ class BuildAndInstallCommand(install):
             raise Exception("3")
 
         try:
-            os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")
+            # os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")
+            copy = "copy" if os.name == "nt" else "cp"
             subprocess.check_call(
-                "cp mineplayer/MineplayerClient/build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/".split(' '),
+                f"{copy} mineplayer/MineplayerClient/build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/".split(' '),
                 cwd=mydir, shell=True)
         except Exception:
             raise Exception("4")

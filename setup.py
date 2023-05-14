@@ -33,8 +33,8 @@ class BuildAndInstallCommand(install):
         try:
             if not os.path.isdir("mineplayer"):
                 os.makedirs("mineplayer", exist_ok=True)
-        except Exception:
-            raise Exception("3")
+        except subprocess.CalledProcessError as e:
+            raise Exception(e.output)
 
         try:
             # os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")

@@ -20,13 +20,13 @@ class BuildAndInstallCommand(install):
             gradlew = "gradlew.bat" if os.name == "nt" else "./gradlew"
 
             mydir = os.path.abspath(os.path.dirname(__file__))
-            workdir = os.path.join(mydir, 'mineplayer', 'MineplayerClient')
+            workdir = os.path.join(mydir, 'mineplayer')
 
         except Exception:
             raise Exception("2")
 
-        self.gradle_downloadAssets(gradlew, workdir)
-        self.gradle_build(gradlew, workdir)
+        self.gradle_downloadAssets(gradlew, os.path.join(workdir, "MineplayerClient"))
+        self.gradle_build(gradlew, os.path.join(workdir, "MineplayerClient"))
 
         # Copy the JAR file to the module directory
         # check if mineplayer dir already exists
@@ -38,6 +38,9 @@ class BuildAndInstallCommand(install):
 
         try:
             os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")
+            subprocess.check_call(
+                "cp mineplayer/MineplayerClient/build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/".split(' '),
+                cwd=mydir, shell=True)
         except Exception:
             raise Exception("4")
 

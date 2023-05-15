@@ -7,43 +7,40 @@ from setuptools.command.install import install
 
 class BuildAndInstallCommand(install):
     def run(self):
+        mydir = os.path.abspath(os.path.dirname(__file__))
         # Change to the repository directory
-        try:
-            os.chdir("mineplayer/MineplayerClient")
-        except Exception:
-            raise Exception("1")
+
+        os.chdir("mineplayer/MineplayerClient")
 
         # Build the JAR file using gradle
-        try:
-            # check_call(["./gradlew", "build"])
-            # check if windows
-            gradlew = "gradlew.bat" if os.name == "nt" else "./gradlew"
+        # check if windows
+        gradlew = "gradlew.bat" if os.name == "nt" else "./gradlew"
 
-            mydir = os.path.abspath(os.path.dirname(__file__))
-            workdir = os.path.join(mydir, 'mineplayer')
+        workdir = os.path.join(mydir, 'mineplayer')
 
-        except Exception:
-            raise Exception("2")
-
-        self.gradle_downloadAssets(gradlew, os.path.join(workdir, "MineplayerClient"))
+        # self.gradle_downloadAssets(gradlew, os.path.join(workdir, "MineplayerClient"))
         self.gradle_build(gradlew, os.path.join(workdir, "MineplayerClient"))
 
-        # Copy the JAR file to the module directory
-        # check if mineplayer dir already exists
-        try:
-            if not os.path.isdir("mineplayer"):
-                os.makedirs("mineplayer", exist_ok=True)
-        except Exception:
-            raise Exception("3")
+        # self.gradle_downloadAssets(gradlew, os.path.join(workdir, "MineplayerServer"))
+        self.gradle_build(gradlew, os.path.join(workdir, "MineplayerServer"))
 
-        try:
-            # os.system("cp build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/")
-            copy = "copy" if os.name == "nt" else "cp"
-            subprocess.check_call(
-                f"{copy} mineplayer/MineplayerClient/build/libs/MineplayerClient-1.0-SNAPSHOT.jar mineplayer/".split(' '),
-                cwd=mydir, shell=True)
-        except subprocess.CalledProcessError as e:
-            raise Exception(e.stderr)
+        os.chdir(mydir)
+
+        # copy the jar files to the mineplayer directory
+        copy = "copy" if os.name == "nt" else "cp"
+        subprocess.check_output(
+            [f"{copy}",
+             os.path.join(
+                 mydir, "mineplayer", "MineplayerClient", "build", "libs", "MineplayerClient-1.0-SNAPSHOT.jar"),
+             os.path.join(mydir, 'mineplayer')],
+            cwd=mydir, shell=True)
+
+        subprocess.check_output(
+            [f"{copy}",
+                os.path.join(
+                    mydir, "mineplayer", "MineplayerServer", "build", "libs", "MineplayerServer-1.0-SNAPSHOT.jar"),
+                os.path.join(mydir, 'mineplayer')],
+            cwd=mydir, shell=True)
 
         # Call the parent run() method to complete the installation
         install.run(self)
@@ -75,6 +72,11 @@ setup(
                       "Pillow>=9.4.0",
                       "minecraft-launcher-lib>=5.3",
                       "tqdm>=4.65.0"],
+    # packages=["mineplayer", "mineplayer.envs", "mineplayer.minecraft"],
+    include_package_data=True,
+    package_data={
+        "": ["*.jar"],
+    },
     cmdclass={
         "install": BuildAndInstallCommand,
     },

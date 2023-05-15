@@ -35,15 +35,17 @@ if __name__ == '__main__':
 
     # print(minecraft_launcher_lib.utils.get_available_versions(minecraft_directory)[-1])
 
-    for version in minecraft_launcher_lib.utils.get_available_versions(minecraft_directory):
+    for version in minecraft_launcher_lib.utils.get_available_versions(minecraft_launcher_lib.utils.get_minecraft_directory()):
         print(version['id'])
 
-    # minecraft_launcher_lib.fabric.install_fabric("1.19.4", minecraft_directory)
+    minecraft_launcher_lib.fabric.install_fabric("1.19.4", minecraft_directory)
+
+    # minecraft_launcher_lib.utils.get_installed_versions(minecraft_launcher_lib.utils.get_minecraft_directory())
 
     options = minecraft_launcher_lib.utils.generate_test_options()
     options["username"] = "JeffLegendPower"
 
-    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command("Quilt 1.19.4", minecraft_directory, options)
-    print(minecraft_command)
+    # minecraft_command = minecraft_launcher_lib.command.get_minecraft_command("Quilt 1.19.4", minecraft_directory, options)
+    # print(minecraft_command)
 
     # subprocess.call(minecraft_command)

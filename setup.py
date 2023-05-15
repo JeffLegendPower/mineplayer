@@ -31,14 +31,14 @@ class BuildAndInstallCommand(install):
         subprocess.check_output(
             [f"{copy}",
              os.path.join(
-                 mydir, "mineplayer", "MineplayerClient", "build", "libs", "MineplayerClient-1.0-SNAPSHOT.jar"),
+                 mydir, "mineplayer", "MineplayerClient", "build", "libs", "MineplayerClient-1.0.0.jar"),
              os.path.join(mydir, 'mineplayer')],
             cwd=mydir, shell=True)
 
         subprocess.check_output(
             [f"{copy}",
                 os.path.join(
-                    mydir, "mineplayer", "MineplayerServer", "build", "libs", "MineplayerServer-1.0-SNAPSHOT.jar"),
+                    mydir, "mineplayer", "MineplayerServer", "build", "libs", "MineplayerServer-1.0.0.jar"),
                 os.path.join(mydir, 'mineplayer')],
             cwd=mydir, shell=True)
 

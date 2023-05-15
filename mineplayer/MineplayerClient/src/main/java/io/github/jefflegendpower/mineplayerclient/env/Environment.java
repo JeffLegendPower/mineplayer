@@ -19,9 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Environment {
 
-    private List<Integer> validKeys;
-    private List<Integer> validMouseButtons;
-
     private boolean active = false;
 
     private EnvInitializer envInitializer;
@@ -39,8 +36,6 @@ public class Environment {
         envResetter = new EnvResetter(out, outputStream, this::getObservation);
         envStepper = new EnvStepper(out, outputStream, this::getObservation);
         envCloser = new EnvCloser(out, disconnectTCP);
-        validKeys = new ArrayList<>();
-        validMouseButtons = new ArrayList<>();
         this.out = out;
 //        videoInput = new VideoInput(MinecraftClient.getInstance().getWindow().getFramebufferWidth(),
 //                MinecraftClient.getInstance().getWindow().getFramebufferHeight());
@@ -52,18 +47,6 @@ public class Environment {
             boolean success = envInitializer.initialize(initMessage);
             JsonObject init = gson.fromJson(initMessage, JsonObject.class);
             JsonObject body = init.getAsJsonObject("body");
-
-            JsonArray validKeysArray = body.getAsJsonArray("valid_keys");
-            JsonArray validMouseButtonsArray = body.getAsJsonArray("valid_buttons");
-            for (int i = 0; i < validKeysArray.size(); i++) {
-                MineplayerClient.getVirtualKeyboard().setKeyState(validKeysArray.get(i).getAsInt(), false);
-                validKeys.add(validKeysArray.get(i).getAsInt());
-            }
-
-            for (int i = 0; i < validMouseButtonsArray.size(); i++) {
-                MineplayerClient.getVirtualMouse().setButtonState(validMouseButtonsArray.get(i).getAsInt(), false);
-                validMouseButtons.add(validMouseButtonsArray.get(i).getAsInt());
-            }
 
             int width = body.get("window_width").getAsInt();
             int height = body.get("window_height").getAsInt();
@@ -105,7 +88,7 @@ public class Environment {
                 case "reset":
                     return envResetter.reset(message);
                 case "step":
-                    return envStepper.step(message, validKeys, validMouseButtons);
+                    return envStepper.step(message);
                 case "close":
                     return close(message);
                 default:

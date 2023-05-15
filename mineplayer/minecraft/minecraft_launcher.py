@@ -3,7 +3,8 @@ import requests
 import tqdm
 import os
 import modrinth
-
+import shutil
+import subprocess
 
 def install_minecraft():
     minecraft_directory = minecraft_launcher_lib.utils.get_minecraft_directory()
@@ -36,7 +37,32 @@ def install_minecraft():
     install_mods(minecraft_directory)
     print("Installed generic performance-enhancing mods")
     print("Installing mineplayer mod...")
-    # TODO: Install mineplayer mod
+    install_mineplayer_client(minecraft_directory)
+    print("Installed mineplayer mod")
+
+
+def launch_minecraft(bot_name, version="fabric-loader-0.14.19-1.19.4"):
+    minecraft_directory = minecraft_launcher_lib.utils.get_minecraft_directory()
+
+    options = minecraft_launcher_lib.utils.generate_test_options()
+    options["username"] = bot_name
+
+    launch_cmd = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directory, options)
+
+    subprocess.call(launch_cmd)
+
+
+def install_mineplayer_client(minecraft_dir):
+    parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    mineplayer_client = os.path.join(parentdir, "MineplayerClient-1.0.0.jar")
+
+    mods_dir = os.path.join(minecraft_dir, "mods")
+    if not os.path.exists(mods_dir):
+        os.makedirs(mods_dir)
+
+    output_file = os.path.join(mods_dir, "mineplayer_client.jar")
+
+    shutil.copyfile(mineplayer_client, output_file)
 
 
 def install_mods(minecraft_dir):
@@ -64,7 +90,3 @@ def install_mods(minecraft_dir):
     install_mod('NRjRiSSD', 'PtXTwQt6', 'memoryleakfix.jar')
     install_mod('H8CaAYZC', 'qH1xCwoC', 'starlight.jar')
     install_mod('5ZwdcRci', '8IFFeKYy', 'immediatelyfast.jar')
-
-
-def run_minecraft():
-    print('e')

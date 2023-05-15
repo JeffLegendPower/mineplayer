@@ -40,7 +40,7 @@ public class EnvStepper implements EnvContextHandler {
     private AtomicBoolean terminated = new AtomicBoolean(false);
     private AtomicDouble reward = new AtomicDouble(0.0);
 
-    public boolean step(String stepMessage, List<Integer> validKeys, List<Integer> validMouseButtons) throws InterruptedException {
+    public boolean step(String stepMessage) {
         try {
             Gson gson = new Gson();
             JsonObject envStepMessage = gson.fromJson(stepMessage, JsonObject.class);
@@ -54,17 +54,13 @@ public class EnvStepper implements EnvContextHandler {
 
             MineplayerClient.runOnMainThread(() -> {
                 for (int i = 0; i < keyToggles.size(); i++) {
-                    boolean toggle = keyToggles.get(i).getAsInt() > 0.5;
-                    int key_id = validKeys.get(i);
-                    if (toggle)
-                        MineplayerClient.getVirtualKeyboard().toggleKeyState(key_id);
+                    int key_id = keyToggles.get(i).getAsInt();
+                    MineplayerClient.getVirtualKeyboard().toggleKeyState(key_id);
                 }
 
                 for (int i = 0; i < mouseToggles.size(); i++) {
-                    boolean toggle = mouseToggles.get(i).getAsInt() > 0.5;
-                    int button_id = validMouseButtons.get(i);
-                    if (toggle)
-                        MineplayerClient.getVirtualMouse().toggleButtonState(button_id);
+                    int button_id = mouseToggles.get(i).getAsInt();
+                    MineplayerClient.getVirtualMouse().toggleButtonState(button_id);
                 }
 
                 int mouseMoveX = mouseMovement.get("x").getAsInt();

@@ -56,7 +56,7 @@ dependencies {
 }
 
 group = "io.github.jefflegendpower"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 description = "MineplayerServer"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 

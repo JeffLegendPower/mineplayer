@@ -17,8 +17,8 @@ class MineplayerEnv(gym.Env):
                  env_type="treechop",
                  headless=False,
                  window_width=640, window_height=360,
-                 valid_keys: list[int] = [],
-                 valid_buttons: list[int] = [],
+                 # valid_keys: list[int] = [],
+                 # valid_buttons: list[int] = [],
                  props: dict = {}):
 
         self.running = True
@@ -44,8 +44,6 @@ class MineplayerEnv(gym.Env):
                 "address": self.address,
                 "port": self.port,
                 "env_type": self.env_type,
-                "valid_keys": valid_keys,
-                "valid_buttons": valid_buttons,
                 "props": props,
                 "window_width": self.window_width,
                 "window_height": self.window_height,
@@ -69,16 +67,16 @@ class MineplayerEnv(gym.Env):
         self.observation_space = spaces.Dict(
             {
                 "window": spaces.Box(low=0, high=255, shape=(self.window_height, self.window_width, 4), dtype=np.float16),
-                "key_states": spaces.Box(low=0, high=1, shape=(len(valid_keys),), dtype=np.int8),
-                "mouse_states": spaces.Box(low=0, high=1, shape=(len(valid_buttons),), dtype=np.int8),
+                "key_states": spaces.Box(low=0, high=np.PINF, shape=(np.PINF,), dtype=np.int8),
+                "mouse_states": spaces.Box(low=0, high=1, shape=(np.PINF,), dtype=np.int8),
                 "mouse_pos": spaces.Box(low=np.NINF, high=np.PINF, shape=(2,), dtype=np.float32),
             }
         )
 
         self.action_space = spaces.Dict(
             {
-                "key_toggles": spaces.Box(low=0, high=1, shape=(len(valid_keys),), dtype=np.int8),
-                "mouse_toggles": spaces.Box(low=0, high=1, shape=(len(valid_buttons),), dtype=np.int8),
+                "key_toggles": spaces.Box(low=0, high=np.PINF, shape=(np.PINF,), dtype=np.int8),
+                "mouse_toggles": spaces.Box(low=0, high=np.PINF, shape=(np.PINF,), dtype=np.int8),
                 "mouse_move": spaces.Box(low=np.NINF, high=np.PINF, shape=(2,), dtype=np.float32),
             }
         )

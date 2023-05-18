@@ -19,9 +19,11 @@ class BuildAndInstallCommand(install):
         workdir = os.path.join(mydir, 'mineplayer')
 
         # self.gradle_downloadAssets(gradlew, os.path.join(workdir, "MineplayerClient"))
+        self.gradle_wrapper(gradlew, os.path.join(workdir, "MineplayerClient"))
         self.gradle_build(gradlew, os.path.join(workdir, "MineplayerClient"))
 
         # self.gradle_downloadAssets(gradlew, os.path.join(workdir, "MineplayerServer"))
+        self.gradle_wrapper(gradlew, os.path.join(workdir, "MineplayerServer"))
         self.gradle_build(gradlew, os.path.join(workdir, "MineplayerServer"))
 
         os.chdir(mydir)
@@ -45,7 +47,7 @@ class BuildAndInstallCommand(install):
         # Call the parent run() method to complete the installation
         install.run(self)
 
-    def gradle_Wrapper(self, gradlew, workdir):
+    def gradle_wrapper(self, gradlew, workdir):
         try:
             subprocess.call(f"{gradlew} wrapper", cwd=workdir)
         except Exception:

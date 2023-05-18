@@ -45,6 +45,12 @@ class BuildAndInstallCommand(install):
         # Call the parent run() method to complete the installation
         install.run(self)
 
+    def gradle_Wrapper(self, gradlew, workdir):
+        try:
+            subprocess.call(f"{gradlew} wrapper", cwd=workdir)
+        except Exception:
+            raise Exception("gradle wrapper windows")
+
     def gradle_downloadAssets(self, gradlew, workdir):
         # This may fail on the first try. Try few times
         n_trials = 3

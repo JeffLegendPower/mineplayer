@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 
 from setuptools import setup
@@ -67,6 +68,13 @@ class BuildAndInstallCommand(install):
     def gradle_build(self, gradlew, workdir):
         try:
             # check_call(["gradlew.bat", "build"])
+
+            # check for .gradle folder in workdir
+            gradle_dir = os.path.join(workdir, '.gradle')
+            if os.path.isdir(gradle_dir):
+                # Delete the directory and its contents
+                shutil.rmtree(gradle_dir)
+
             subprocess.call(f"{gradlew} clean build", shell=True, cwd=workdir)
         except Exception:
             raise Exception("gradle build windows")

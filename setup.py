@@ -20,8 +20,11 @@ class BuildAndInstallCommand(install):
         workdir = os.path.join(mydir, 'mineplayer')
 
         # self.gradle_downloadAssets(gradlew, os.path.join(workdir, "MineplayerClient"))
+        print("1")
         self.gradle_wrapper(gradlew, os.path.join(workdir, "MineplayerClient"))
+        print("2")
         self.gradle_build(gradlew, os.path.join(workdir, "MineplayerClient"))
+        print("3")
 
         # self.gradle_downloadAssets(gradlew, os.path.join(workdir, "MineplayerServer"))
         self.gradle_wrapper(gradlew, os.path.join(workdir, "MineplayerServer"))

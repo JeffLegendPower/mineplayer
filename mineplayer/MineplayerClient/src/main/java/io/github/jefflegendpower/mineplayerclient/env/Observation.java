@@ -33,13 +33,12 @@ public class Observation {
         JsonObject jsonObject = new JsonObject();
 
         JsonArray keyStatesJson = new JsonArray();
-        for (boolean entry : keyStates.values()) {
-            keyStatesJson.add(entry ? 1 : 0);
-        }
+        for (Map.Entry<Integer, Boolean> entry : keyStates.entrySet())
+            if (entry.getValue()) keyStatesJson.add(entry.getKey());
 
         JsonArray mouseButtonStatesJson = new JsonArray();
-        for (boolean entry : mouseButtonStates.values())
-            mouseButtonStatesJson.add(entry ? 1 : 0);
+        for (Map.Entry<Integer, Boolean> entry : mouseButtonStates.entrySet())
+            if (entry.getValue()) mouseButtonStatesJson.add(entry.getKey());
 
         JsonArray currentMousePos = new JsonArray();
         currentMousePos.add(currentMouseX);

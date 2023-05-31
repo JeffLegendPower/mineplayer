@@ -1,48 +1,62 @@
 import base64
 import json
+import os
 import socket
-
 import gymnasium as gym
 import numpy as np
 from PIL import Image
 from gymnasium import spaces
+import sys
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(parent_dir, "minecraft"))
+
+from minecraft_client_launcher import install_minecraft_client, launch_minecraft_client
 
 
 class MineplayerEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    # Valid keys and buttons follow GLFW enumerations
-    def __init__(self, address="localhost", port=25565,
-                 env_address="localhost", env_port=444,
-                 env_type="treechop",
-                 headless=False,
-                 window_width=640, window_height=360,
-                 # valid_keys: list[int] = [],
-                 # valid_buttons: list[int] = [],
-                 props: dict = {}):
+    def __init__(self, mc_server_address="localhost", mc_server_port=25565, connection_timeout=90.0, env_type="treechop",
+                 headless=False, window_width=640, window_height=360,
+                 props: dict = {},
+                 num_keys=5, num_mouse_buttons=2
+                 ):
+
+        install_minecraft_client()
+        self.minecraft_client = launch_minecraft_client("RicketyRot")
 
         self.running = True
 
         self.window_width = window_width
         self.window_height = window_height
 
-        self.address = address
-        self.port = port
+        self.address = "127.0.0.1"
+        self.port = 2880
 
         self.env_type = env_type
 
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((self.address, self.port))
+        self.server_socket.listen(1)
 
-        print(f"Connecting to Minecraft client at {env_address}:{env_port}...")
-        self.sock.connect((env_address, env_port))
-        self.sock.settimeout(30.0)
-        print(f"Connected to Minecraft client at {env_address}:{env_port}")
+        print(f"Listening for connections at {self.address}:{self.port}...")
+
+        self.client_socket, _ = self.server_socket.accept()
+        self.client_socket.settimeout(connection_timeout)
+        print(f"Connected to client")
+
+        # Establish that this is an environment
+        self.send_message({"context": "ENV"})
+        response = self.receive_message()
+        if response != "ENV":
+            raise ValueError(f"Received invalid response from Minecraft client, expected ENV, got {response}")
 
         init_message = {
             "context": "init",
             "body": {
-                "address": self.address,
-                "port": self.port,
+                "address": mc_server_address,
+                "port": mc_server_port,
                 "env_type": self.env_type,
                 "props": props,
                 "window_width": self.window_width,
@@ -50,14 +64,12 @@ class MineplayerEnv(gym.Env):
             }
         }
 
-        print(f"Sending init message to Minecraft client")
-        print(bytes(json.dumps(init_message), encoding="utf-8"))
+        print(f"Sending init message to client")
+        self.send_message(init_message)
 
-        self.sock.sendall(bytes(json.dumps(init_message), encoding="utf-8"))
-        # Now wait for the client to respond
-        print("Setting up environment...")
-        response = self.sock.recv(4096)
+        response = self.receive_message()
         response = json.loads(response)
+
         if response["context"] != "init":
             raise ValueError(f"Received invalid response from Minecraft client: {response}")
         if response["body"]["status"] != "success":
@@ -67,41 +79,46 @@ class MineplayerEnv(gym.Env):
         self.observation_space = spaces.Dict(
             {
                 "window": spaces.Box(low=0, high=255, shape=(self.window_height, self.window_width, 4), dtype=np.float16),
-                "key_states": spaces.Box(low=0, high=np.PINF, shape=(np.PINF,), dtype=np.int8),
-                "mouse_states": spaces.Box(low=0, high=1, shape=(np.PINF,), dtype=np.int8),
+                "key_states": spaces.Box(low=0, high=np.PINF, shape=(num_keys,), dtype=np.int8),
+                "mouse_states": spaces.Box(low=0, high=1, shape=(num_mouse_buttons,), dtype=np.int8),
                 "mouse_pos": spaces.Box(low=np.NINF, high=np.PINF, shape=(2,), dtype=np.float32),
             }
         )
 
         self.action_space = spaces.Dict(
             {
-                "key_toggles": spaces.Box(low=0, high=np.PINF, shape=(np.PINF,), dtype=np.int8),
-                "mouse_toggles": spaces.Box(low=0, high=np.PINF, shape=(np.PINF,), dtype=np.int8),
+                "key_toggles": spaces.Box(low=0, high=np.PINF, shape=(num_keys,), dtype=np.int8),
+                "mouse_toggles": spaces.Box(low=0, high=np.PINF, shape=(num_mouse_buttons,), dtype=np.int8),
                 "mouse_move": spaces.Box(low=np.NINF, high=np.PINF, shape=(2,), dtype=np.float32),
             }
         )
 
         print("Environment setup complete")
 
-    def render(self, mode='human', close=False):
-        # TODO
-        pass
+    def send_message(self, message):
+        self.client_socket.sendall(bytes(json.dumps(message), encoding="utf-8"))
+
+    def receive_message(self):
+        data = b""
+        while True:
+            chunk = self.client_socket.recv(4096)
+            data += chunk
+            if len(chunk) < 4096:
+                break
+        return data.decode("utf-8").rstrip('\r\n')
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        # TODO
-
         reset_message = {
             "context": "reset",
             "body": {}
         }
 
-        self.sock.sendall(bytes(json.dumps(reset_message), encoding="utf-8"))
-        # Now wait for the client to respond
-        response_bytes = self.sock.recv(4096)
-        response = response_bytes.decode('utf-8').rstrip('\r\n')
+        self.send_message(reset_message)
 
+        response = self.receive_message()
         response = json.loads(response)
+
         if response["context"] != "reset":
             raise ValueError(f"Received invalid response from Minecraft client: {response}")
         if response["body"]["status"] != "success":
@@ -119,7 +136,7 @@ class MineplayerEnv(gym.Env):
 
         while len(encoded_frame) < encoded_length:
             bytes_to_receive = min(encoded_length - len(encoded_frame), 4096)
-            encoded_frame += self.sock.recv(bytes_to_receive)
+            encoded_frame += self.client_socket.recv(bytes_to_receive)
 
         frame_string = encoded_frame.decode('utf-8').rstrip('\r\n')
         frame_buffer = base64.b64decode(frame_string)
@@ -137,6 +154,7 @@ class MineplayerEnv(gym.Env):
         return obs, info
 
     def step(self, action):
+
         key_toggles = action["key_toggles"].tolist() \
             if isinstance(action["key_toggles"], np.ndarray) \
             else action["key_toggles"]
@@ -159,12 +177,11 @@ class MineplayerEnv(gym.Env):
             }
         }
 
-        self.sock.sendall(bytes(json.dumps(step_message), encoding="utf-8"))
-        # Now wait for the client to respond
-        response_bytes = self.sock.recv(4096)
-        response = response_bytes.decode('utf-8').rstrip('\r\n')
+        self.send_message(step_message)
 
+        response = self.receive_message()
         response = json.loads(response)
+
         if response["context"] != "step":
             raise ValueError(f"Received invalid response from Minecraft client: {response}")
         if response["body"]["status"] != "success":
@@ -182,7 +199,7 @@ class MineplayerEnv(gym.Env):
 
         while len(encoded_frame) < encoded_length:
             bytes_to_receive = min(encoded_length - len(encoded_frame), 4096)
-            encoded_frame += self.sock.recv(bytes_to_receive)
+            encoded_frame += self.client_socket.recv(bytes_to_receive)
 
         frame_string = encoded_frame.decode('utf-8').rstrip('\r\n')
         frame_buffer = base64.b64decode(frame_string)
@@ -204,17 +221,15 @@ class MineplayerEnv(gym.Env):
         return obs, reward, terminated, False, info
 
     def close(self):
-        # TODO
         close_message = {
             "context": "close",
             "body": {}
         }
 
         try:
-            self.sock.sendall(bytes(json.dumps(close_message), encoding="utf-8"))
+            self.send_message(close_message)
             # Now wait for the client to respond
-            response_bytes = self.sock.recv(4096)
-            response = response_bytes.decode('utf-8').rstrip('\r\n')
+            response = self.receive_message()
             response = json.loads(response)
             if response["context"] != "close":
                 raise ValueError(f"Received invalid response from Minecraft client: {response}")
@@ -222,4 +237,6 @@ class MineplayerEnv(gym.Env):
                 raise ValueError(
                     f"Received error response from Minecraft client (check Minecraft logs for error): {response}")
         finally:
-            self.sock.close()
+            self.client_socket.close()
+            self.server_socket.close()
+            print("Closed mineplayer environment")

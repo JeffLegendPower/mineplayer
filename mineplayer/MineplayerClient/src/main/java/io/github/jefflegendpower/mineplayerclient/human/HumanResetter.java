@@ -1,13 +1,17 @@
-package io.github.jefflegendpower.mineplayerclient.env;
+package io.github.jefflegendpower.mineplayerclient.human;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.github.jefflegendpower.mineplayerclient.client.MineplayerClient;
+import io.github.jefflegendpower.mineplayerclient.env.Observation;
 import io.github.jefflegendpower.mineplayerclient.utils.StringByteUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.GameMenuScreen;
+import net.minecraft.client.gui.screen.LevelLoadingScreen;
+import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
@@ -17,13 +21,13 @@ import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-public class EnvResetter implements EnvContextHandler {
+public class HumanResetter {
 
     private PrintWriter out;
     private OutputStream outputStream;
     private Supplier<Observation> getObservation;
 
-    public EnvResetter(PrintWriter out, OutputStream outputStream, Supplier<Observation> getObservation) {
+    public HumanResetter(PrintWriter out, OutputStream outputStream, Supplier<Observation> getObservation) {
         this.out = out;
         this.outputStream = outputStream;
         this.getObservation = getObservation;
@@ -33,7 +37,7 @@ public class EnvResetter implements EnvContextHandler {
 
     private AtomicBoolean reset = new AtomicBoolean(false);
 
-    public boolean reset(String resetMessage) {
+    public boolean reset(String resetMessage, boolean firstTime) {
         try {
             MineplayerClient.getVirtualKeyboard().clearKeys();
             MineplayerClient.getVirtualMouse().resetMouse();
@@ -47,6 +51,9 @@ public class EnvResetter implements EnvContextHandler {
             }
 
             reset.set(false);
+
+            // TODO add gui to confirm start/stop stuff
+
             out.println(envClientResponse(true));
 
             String frame = getObservation.get().getFrameBase64();

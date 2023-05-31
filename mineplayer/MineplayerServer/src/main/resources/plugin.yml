@@ -1,7 +1,7 @@
 name: MineplayerServer
 version: '${version}'
-main: MineplayerServer
+main: io.github.jefflegendpower.mineplayerserver.MineplayerServer
 api-version: 1.19
-depend: [ ProtocolLib, Multiverse-Core, Kotlin ]
+depend: [ ProtocolLib, Multiverse-Core, MCKotlin-Paper ]
 authors: [ JeffLegendPower ]
 description: Training environment for Mineplayer

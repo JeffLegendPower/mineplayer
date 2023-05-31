@@ -50,6 +50,7 @@ public class EnvCloser implements EnvContextHandler {
             }
 
             closed.set(false);
+            System.out.println("1a");
             out.println(envClientResponse(true));
             return true;
         } catch (Exception e) {
@@ -59,6 +60,7 @@ public class EnvCloser implements EnvContextHandler {
         } finally {
             try {
                 disconnectTCP.run();
+                MinecraftClient.getInstance().stop();
             } catch (Exception ignored) {}
         }
     }

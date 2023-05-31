@@ -1,7 +1,6 @@
-package io.github.jefflegendpower.mineplayerclient.env;
+package io.github.jefflegendpower.mineplayerclient.human;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.github.jefflegendpower.mineplayerclient.client.MineplayerClient;
 import io.github.jefflegendpower.mineplayerclient.utils.StringByteUtils;
@@ -21,19 +20,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.minecraft.client.gui.screen.ConnectScreen.connect;
 
-public class EnvInitializer implements EnvContextHandler {
+public class HumanStarter {
 
-    private final Identifier initEnvIdentifier = MineplayerClient.mineplayerIdentifier("env_init");
-    private AtomicBoolean initialized = new AtomicBoolean(false);
+    private final Identifier startEnvIdentifier = MineplayerClient.mineplayerIdentifier("env_init");
+    private AtomicBoolean started = new AtomicBoolean(false);
 
-    // Note that this function is blocking and will only respond once the server has responded
-    public boolean initialize(String initMessage) {
+    public boolean start(String startMessage) {
         try {
-            Gson gson = new Gson();
-            JsonObject envInitMessage = gson.fromJson(initMessage, JsonObject.class);
-            JsonObject body = connectToServer(envInitMessage);
+            JsonObject envstartMessage = new Gson().fromJson(startMessage, JsonObject.class);
+            JsonObject body = connectToServer(envstartMessage);
 
-            ClientPlayNetworking.registerGlobalReceiver(initEnvIdentifier, this::initReceiver);
+            ClientPlayNetworking.registerGlobalReceiver(startEnvIdentifier, this::startReceiver);
 
             // Timeout after 10 seconds
             int timeout = 0;
@@ -41,7 +38,7 @@ public class EnvInitializer implements EnvContextHandler {
             while (!connected && timeout < 30) {
                 Thread.sleep(1000);
                 try {
-                    ClientPlayNetworking.send(initEnvIdentifier, generateInitPayload(
+                    ClientPlayNetworking.send(startEnvIdentifier, generateStartPayload(
                             body.get("env_type").getAsString(),
                             body.get("props").getAsJsonObject()));
                     connected = true;
@@ -54,11 +51,13 @@ public class EnvInitializer implements EnvContextHandler {
             if (!connected)
                 throw new RuntimeException("Failed to connect to server");
 
-            while (!initialized.get()) {
+            while (!started.get()) {
                 Thread.sleep(100);
             }
 
-            initialized.set(false);
+
+
+            started.set(false);
 
             return true;
         } catch (Exception e) {
@@ -67,22 +66,22 @@ public class EnvInitializer implements EnvContextHandler {
         }
     }
 
-    public String generateClientInitMessage(boolean success) {
-        JsonObject initMessage = new JsonObject();
-        initMessage.addProperty("context", "init");
+    public String generateClientStartMessage(boolean success) {
+        JsonObject startMessage = new JsonObject();
+        startMessage.addProperty("context", "start");
         JsonObject body = new JsonObject();
         body.addProperty("status", success ? "success" : "failure");
-        initMessage.add("body", body);
-        return initMessage.toString();
+        startMessage.add("body", body);
+        return startMessage.toString();
     }
 
-    private void initReceiver(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+    private void startReceiver(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         Gson gson = new Gson();
         String message = StringByteUtils.dataToString(buf);
-        JsonObject envInitResponse = gson.fromJson(message, JsonObject.class);
-        if (!envInitResponse.get("context").getAsString().equals("init"))
-            throw new RuntimeException("Invalid context for init message, got: " + envInitResponse.get("context").getAsString());
-        JsonObject body = envInitResponse.getAsJsonObject("body");
+        JsonObject envstartResponse = gson.fromJson(message, JsonObject.class);
+        if (!envstartResponse.get("context").getAsString().equals("start"))
+            throw new RuntimeException("Invalid context for start message, got: " + envstartResponse.get("context").getAsString());
+        JsonObject body = envstartResponse.getAsJsonObject("body");
         if (body.get("status").getAsString().equals("success")) {
             System.out.println("Server successfully initialized environment");
         } else {
@@ -92,16 +91,16 @@ public class EnvInitializer implements EnvContextHandler {
                 throw new RuntimeException("Server failed to initialize environment, no reason provided");
         }
 
-        initialized.set(true);
-        ClientPlayNetworking.unregisterGlobalReceiver(initEnvIdentifier);
+        started.set(true);
+        ClientPlayNetworking.unregisterGlobalReceiver(startEnvIdentifier);
     }
 
-    // returns the body of the init message
-    private JsonObject connectToServer(JsonObject initMessage) {
-        JsonObject body = initMessage.getAsJsonObject("body");
+    // returns the body of the start message
+    private JsonObject connectToServer(JsonObject startMessage) {
+        JsonObject body = startMessage.getAsJsonObject("body");
 
-        if (!initMessage.get("context").getAsString().equals("init"))
-            throw new RuntimeException("Invalid context for init message, got: " + initMessage.get("context").getAsString());
+        if (!startMessage.get("context").getAsString().equals("start"))
+            throw new RuntimeException("Invalid context for start message, got: " + startMessage.get("context").getAsString());
 
         String address = body.get("address").getAsString();
         int port = body.get("port").getAsInt();
@@ -154,17 +153,17 @@ public class EnvInitializer implements EnvContextHandler {
         return body;
     }
 
-    private PacketByteBuf generateInitPayload(String envType, JsonObject props) {
-        JsonObject serverEnvInit = new JsonObject();
-        JsonObject serverEnvInitBody = new JsonObject();
-        serverEnvInit.addProperty("context", "init");
-        serverEnvInitBody.addProperty("env_type", envType);
-        serverEnvInitBody.add("props", props);
-        serverEnvInit.add("body", serverEnvInitBody);
+    private PacketByteBuf generateStartPayload(String envType, JsonObject props) {
+        JsonObject serverEnvStart = new JsonObject();
+        JsonObject serverEnvStartBody = new JsonObject();
+        serverEnvStart.addProperty("context", "start");
+        serverEnvStartBody.addProperty("env_type", envType);
+        serverEnvStartBody.add("props", props);
+        serverEnvStart.add("body", serverEnvStartBody);
 
         PacketByteBuf byteBuf = PacketByteBufs.create();
 
-        StringByteUtils.writeString(byteBuf, new Gson().toJson(serverEnvInit));
+        StringByteUtils.writeString(byteBuf, new Gson().toJson(serverEnvStart));
 
         return byteBuf;
     }

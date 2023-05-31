@@ -1,2 +1,0 @@
-from minecraft_launcher import install_minecraft
-from minecraft_launcher import launch_minecraft

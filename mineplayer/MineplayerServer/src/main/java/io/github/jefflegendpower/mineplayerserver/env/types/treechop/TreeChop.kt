@@ -1,13 +1,18 @@
-package io.github.jefflegendpower.mineplayerserver.env.types
+package io.github.jefflegendpower.mineplayerserver.env.types.treechop
 
 import com.google.gson.JsonObject
 import io.github.jefflegendpower.mineplayerserver.MineplayerServer
 import io.github.jefflegendpower.mineplayerserver.assets.WorldRegistry
+import io.github.jefflegendpower.mineplayerserver.env.types.EnvType
 import io.github.jefflegendpower.mineplayerserver.utils.LobbyWorld
 import io.github.jefflegendpower.mineplayerserver.utils.runOnMainThread
 import io.github.jefflegendpower.mineplayerserver.utils.supplyFromMainThread
+import io.github.jefflegendpower.mineplayerserver.utils.unzip
 import org.bukkit.Material
+import org.bukkit.World
 import org.bukkit.entity.Player
+import java.io.File
+import java.io.FileInputStream
 import java.util.*
 
 class TreeChop(player: Player, props: JsonObject) : EnvType("treechop", player) {
@@ -19,13 +24,36 @@ class TreeChop(player: Player, props: JsonObject) : EnvType("treechop", player) 
     private var closed = false
     private var logGoal = props.get("log_goal").asInt
 
+    override fun bootstrap() {
+        val targetDir = MineplayerServer.instance.server.worldContainer
+
+//        MineplayerServer.instance.saveResource("treechop_template", true)
+        val treechopTemplate = supplyFromMainThread {
+            MineplayerServer.instance.saveResource("treechop_template.zip", true)
+            return@supplyFromMainThread File(MineplayerServer.instance.dataFolder, "treechop_template.zip")
+        }
+
+        if (File(targetDir, "treechop_template").exists())
+            File(targetDir, "treechop_template").deleteRecursively()
+
+        unzip(FileInputStream(treechopTemplate), targetDir.toPath())
+
+        runOnMainThread {
+            try {
+                MineplayerServer.instance.mvCore.mvWorldManager.addWorld(
+                    "treechop_template", World.Environment.NORMAL,
+                    null, null, null, null, true)
+            } catch (e: Exception) {
+                // World already exists so ignore
+            }
+        }
+    }
+
     override fun reset(props: JsonObject): JsonObject {
         try {
-//            if (!terminated) throw RuntimeException("Environment must be terminated (it starts terminated) before it can be reset")
-
             val returnMessage = JsonObject()
 
-            runOnMainThread {
+            val result = supplyFromMainThread {
 
                 if (worldManager.getMVWorld(worldName) != null)
                     delAndRemoveWorldSafe(worldName, player)
@@ -39,8 +67,13 @@ class TreeChop(player: Player, props: JsonObject) : EnvType("treechop", player) 
                 worldManager.loadWorld(worldName).let { if (!it) throw RuntimeException("Failed to load world $worldName") }
                 val world = worldManager.getMVWorld(worldName) ?: throw RuntimeException("World $worldName not found")
 
-                player.teleportAsync(world.spawnLocation)
+                val spawnLocation = world.spawnLocation
+                spawnLocation.set(-215.4, 64.0, 71.1)
+
+                return@supplyFromMainThread player.teleportAsync(spawnLocation)
             }
+
+            result.join()
 
             returnMessage.addProperty("status", "success")
             terminated = false

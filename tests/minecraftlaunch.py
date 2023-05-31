@@ -1,7 +1,10 @@
 # import minecraft_launcher_lib
 # import subprocess
+import os
+import subprocess
 
 import minecraft_launcher_lib
+import requests
 
 # def install_minecraft():
 #     minecraft_directory = minecraft_launcher_lib.utils.get_minecraft_directory()
@@ -38,14 +41,14 @@ if __name__ == '__main__':
     for version in minecraft_launcher_lib.utils.get_available_versions(minecraft_launcher_lib.utils.get_minecraft_directory()):
         print(version['id'])
 
-    minecraft_launcher_lib.fabric.install_fabric("1.19.4", minecraft_directory)
+    # minecraft_launcher_lib.fabric.install_fabric("1.19.4", minecraft_directory)
 
     # minecraft_launcher_lib.utils.get_installed_versions(minecraft_launcher_lib.utils.get_minecraft_directory())
 
     options = minecraft_launcher_lib.utils.generate_test_options()
     options["username"] = "JeffLegendPower"
 
-    # minecraft_command = minecraft_launcher_lib.command.get_minecraft_command("Quilt 1.19.4", minecraft_directory, options)
-    # print(minecraft_command)
+    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command("fabric-loader-0.14.19-1.19.4", minecraft_directory, options)
+    print(minecraft_command)
 
-    # subprocess.call(minecraft_command)
+    # popen = subprocess.Popen(minecraft_command)

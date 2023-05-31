@@ -1,16 +1,16 @@
 package io.github.jefflegendpower.mineplayerclient.client;
 
-import io.github.jefflegendpower.mineplayerclient.Mineplayer;
-import io.github.jefflegendpower.mineplayerclient.env.EnvTCPServer;
+import io.github.jefflegendpower.mineplayerclient.human.screen.HumanStartScreen;
+import io.github.jefflegendpower.mineplayerclient.tcp.TCPClient;
 import io.github.jefflegendpower.mineplayerclient.inputs.VirtualKeyboard;
 import io.github.jefflegendpower.mineplayerclient.inputs.VirtualMouse;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.SplashOverlay;
 import net.minecraft.util.Identifier;
-
-import java.io.IOException;
 
 @Environment(EnvType.CLIENT)
 public class MineplayerClient implements ClientModInitializer {
@@ -22,19 +22,27 @@ public class MineplayerClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        EnvTCPServer envTCPServer = new EnvTCPServer();
+        ClientTickEvents.START_CLIENT_TICK.register(new ClientTickEvents.StartTick() {
 
-        Thread thread = new Thread("EnvServerSocketHandler") {
+            boolean ran = false;
+
             @Override
-            public void run() {
-                try {
-                    envTCPServer.start(444, false);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            public void onStartTick(MinecraftClient client) {
+                if (ran || client.getOverlay() instanceof SplashOverlay) return;
+                MinecraftClient.getInstance().options.pauseOnLostFocus = false;
+
+                TCPClient TCPClient = new TCPClient();
+
+                Thread thread = new Thread("EnvSocketHandler") {
+                    @Override
+                    public void run() {
+                        TCPClient.start("127.0.0.1", 2880, false);
+                    }
+                };
+                thread.start();
+                ran = true;
             }
-        };
-        thread.start();
+        });
     }
 
     public static VirtualKeyboard getVirtualKeyboard() {

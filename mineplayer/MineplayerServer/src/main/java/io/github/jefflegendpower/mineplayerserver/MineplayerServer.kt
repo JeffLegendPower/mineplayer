@@ -3,7 +3,7 @@ package io.github.jefflegendpower.mineplayerserver
 import com.onarandombox.MultiverseCore.MultiverseCore
 import io.github.jefflegendpower.mineplayerserver.assets.WorldRegistry
 import io.github.jefflegendpower.mineplayerserver.env.EnvironmentFactory
-import io.github.jefflegendpower.mineplayerserver.env.types.TreeChop
+import io.github.jefflegendpower.mineplayerserver.env.types.treechop.TreeChop
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 

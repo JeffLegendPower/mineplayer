@@ -31,14 +31,11 @@ public class Environment {
     private VideoInput videoInput;
 
     public Environment(PrintWriter out, OutputStream outputStream, Runnable disconnectTCP) {
-        MinecraftClient.getInstance().options.pauseOnLostFocus = false;
         envInitializer = new EnvInitializer();
         envResetter = new EnvResetter(out, outputStream, this::getObservation);
         envStepper = new EnvStepper(out, outputStream, this::getObservation);
         envCloser = new EnvCloser(out, disconnectTCP);
         this.out = out;
-//        videoInput = new VideoInput(MinecraftClient.getInstance().getWindow().getFramebufferWidth(),
-//                MinecraftClient.getInstance().getWindow().getFramebufferHeight());
     }
 
     public boolean initialize(String initMessage) {

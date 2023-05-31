@@ -10,11 +10,13 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import io.github.jefflegendpower.mineplayerserver.MineplayerServer
 import io.github.jefflegendpower.mineplayerserver.env.types.EnvType
+import io.github.jefflegendpower.mineplayerserver.utils.supplyFromMainThread
 import io.netty.buffer.Unpooled
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket
 import net.minecraft.resources.ResourceLocation
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -23,6 +25,8 @@ object EnvironmentFactory {
     private val registered = false
 
     private val envs = mutableMapOf<UUID, Environment>()
+
+    private val bootstrapped = mutableMapOf<Class<out EnvType>, Boolean>()
 
     // map of string and class of envtype so i can instantiate it and pass props
     private val registeredEnvTypes = mutableMapOf<String, Class<out EnvType>>()
@@ -44,6 +48,7 @@ object EnvironmentFactory {
             PacketType.Play.Client.CUSTOM_PAYLOAD
         ) {
             override fun onPacketReceiving(event: PacketEvent) {
+
                 if (event.packet.type !== PacketType.Play.Client.CUSTOM_PAYLOAD) {
                     return
                 }
@@ -76,14 +81,15 @@ object EnvironmentFactory {
                 val returnPacket = PacketContainer(PacketType.Play.Server.CUSTOM_PAYLOAD,
                     ClientboundCustomPayloadPacket(packet.identifier, returnBlock))
                 protocolManager.sendServerPacket(player, returnPacket)
+
             }
         })
     }
 
     private fun init(data: FriendlyByteBuf, player: Player): FriendlyByteBuf {
         try {
-            val message = dataToString((data))
-            println(message)
+
+            val message = dataToString(data)
             val json = Gson().fromJson(message, JsonObject::class.java)
             val body = json.get("body") as JsonObject
             val envTypeJson = body.get("env_type").asString
@@ -203,7 +209,13 @@ object EnvironmentFactory {
             it.parameterTypes.size == args.size
         } ?: throw IllegalArgumentException("No matching constructor found")
 
-        return constructor.newInstance(*args) as EnvType
+        val env = constructor.newInstance(*args) as EnvType
+        return if (bootstrapped[clazz] == true) env
+        else {
+            env.bootstrap()
+            bootstrapped[clazz] = true
+            env
+        }
     }
 
     // ONLY WORKS ONCE PER BYTE BUFFER

@@ -6,6 +6,11 @@ import org.bukkit.entity.Player
 abstract class EnvType(val id: String, val player: Player) {
 
     /**
+     * Bootstrap the environment to prepare it for use
+     */
+    abstract fun bootstrap()
+
+    /**
      * Initialize the environment for the player
      * @param props The properties to initialize the environment with (if any)
      * @return The return message to send to the client

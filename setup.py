@@ -26,8 +26,6 @@ class BuildAndInstallCommand(install):
         self.gradle_build(gradlew, os.path.join(workdir, "MineplayerClient"))
         print("3")
 
-        # self.gradle_downloadAssets(gradlew, os.path.join(workdir, "MineplayerServer"))
-        # self.gradle_wrapper(gradlew, os.path.join(workdir, "MineplayerServer"))
         print("4")
         self.gradle_build(gradlew, os.path.join(workdir, "MineplayerServer"))
         print("5")
@@ -77,7 +75,8 @@ class BuildAndInstallCommand(install):
             # if os.path.isdir(gradle_dir):
             #     # Delete the directory and its contents
             #     shutil.rmtree(gradle_dir)
-
+            if os.name == "posix":
+                subprocess.call(["chmod", "+x", gradlew], cwd=workdir)
             subprocess.call(f"{gradlew} clean build", shell=True, cwd=workdir)
         except Exception:
             raise Exception("gradle build windows")

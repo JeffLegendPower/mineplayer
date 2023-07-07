@@ -13,7 +13,7 @@ public class VirtualKeyboard {
 
     private long window;
 
-    private ConcurrentHashMap<Integer, Boolean> keyStates = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, Boolean> keyStates = new ConcurrentHashMap<>();
 
     // CALL ALL THESE ON MAIN THREAD
     // https://www.glfw.org/docs/3.3/group__input.html#ga1caf18159767e761185e49a3be019f8d

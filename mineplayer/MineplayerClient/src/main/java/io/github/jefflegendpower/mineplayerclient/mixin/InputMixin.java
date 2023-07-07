@@ -1,6 +1,7 @@
 package io.github.jefflegendpower.mineplayerclient.mixin;
 
 import io.github.jefflegendpower.mineplayerclient.client.MineplayerClient;
+import io.github.jefflegendpower.mineplayerclient.state.Action;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.*;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,10 +28,33 @@ public class InputMixin {
      */
     @Overwrite()
     public static void setKeyboardCallbacks(long handle, GLFWKeyCallbackI keyCallback, GLFWCharModsCallbackI charModsCallback) {
-        GLFW.glfwSetKeyCallback(handle, keyCallback);
+        GLFWKeyCallbackI newKeyCallback = (window, key, scancode, action, mods) -> {
+            Action.keyToggle(key);
+            // get all the mod keys used and add them too
+            if (mods != 0) {
+                if ((mods & GLFW.GLFW_MOD_SHIFT) != 0) {
+                    Action.keyToggle(GLFW.GLFW_KEY_LEFT_SHIFT);
+                }
+                if ((mods & GLFW.GLFW_MOD_CONTROL) != 0) {
+                    Action.keyToggle(GLFW.GLFW_KEY_LEFT_CONTROL);
+                }
+                if ((mods & GLFW.GLFW_MOD_ALT) != 0) {
+                    Action.keyToggle(GLFW.GLFW_KEY_LEFT_ALT);
+                }
+                if ((mods & GLFW.GLFW_MOD_SUPER) != 0) {
+                    Action.keyToggle(GLFW.GLFW_KEY_LEFT_SUPER);
+                }
+            }
+
+            if (keyCallback != null) {
+                keyCallback.invoke(window, key, scancode, action, mods);
+            }
+        };
+
+        GLFW.glfwSetKeyCallback(handle, newKeyCallback);
         GLFW.glfwSetCharModsCallback(handle, charModsCallback);
 
-        MineplayerClient.getVirtualKeyboard().setKeyCallback(keyCallback);
+        MineplayerClient.getVirtualKeyboard().setKeyCallback(newKeyCallback);
         MineplayerClient.getVirtualKeyboard().setCharModsCallback(charModsCallback);
         MineplayerClient.getVirtualKeyboard().setWindow(handle);
     }
@@ -41,13 +65,27 @@ public class InputMixin {
      */
     @Overwrite()
     public static void setMouseCallbacks(long handle, GLFWCursorPosCallbackI cursorPosCallback, GLFWMouseButtonCallbackI mouseButtonCallback, GLFWScrollCallbackI scrollCallback, GLFWDropCallbackI dropCallback) {
-        GLFW.glfwSetCursorPosCallback(handle, cursorPosCallback);
-        GLFW.glfwSetMouseButtonCallback(handle, mouseButtonCallback);
+        GLFWCursorPosCallbackI newCursorPosCallback = (window, xpos, ypos) -> {
+            Action.setMouseCoords(xpos, ypos);
+            if (cursorPosCallback != null) {
+                cursorPosCallback.invoke(window, xpos, ypos);
+            }
+        };
+
+        GLFWMouseButtonCallbackI newMouseButtonCallback = (window, button, action, mods) -> {
+            Action.mouseToggle(button);
+            if (mouseButtonCallback != null) {
+                mouseButtonCallback.invoke(window, button, action, mods);
+            }
+        };
+
+        GLFW.glfwSetCursorPosCallback(handle, newCursorPosCallback);
+        GLFW.glfwSetMouseButtonCallback(handle, newMouseButtonCallback);
         GLFW.glfwSetScrollCallback(handle, scrollCallback);
         GLFW.glfwSetDropCallback(handle, dropCallback);
 
-        MineplayerClient.getVirtualMouse().setCursorPosCallback(cursorPosCallback);
-        MineplayerClient.getVirtualMouse().setMouseButtonCallback(mouseButtonCallback);
+        MineplayerClient.getVirtualMouse().setCursorPosCallback(newCursorPosCallback);
+        MineplayerClient.getVirtualMouse().setMouseButtonCallback(newMouseButtonCallback);
         MineplayerClient.getVirtualMouse().setScrollCallback(scrollCallback);
         MineplayerClient.getVirtualMouse().setDropCallback(dropCallback);
         MineplayerClient.getVirtualMouse().setWindow(handle);

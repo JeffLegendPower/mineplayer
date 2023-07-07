@@ -3,6 +3,7 @@ package io.github.jefflegendpower.mineplayerclient.env;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.github.jefflegendpower.mineplayerclient.client.MineplayerClient;
+import io.github.jefflegendpower.mineplayerclient.state.Observation;
 import io.github.jefflegendpower.mineplayerclient.utils.StringByteUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -98,7 +99,6 @@ public class EnvResetter implements EnvContextHandler {
         clientEnvResetBody.addProperty("status", success ? "success" : "failure");
 
         if (success) {
-            // the window is handled by the python package using openCV and OBS
             Observation obs = getObservation.get();
             clientEnvResetBody.add("observation", obs.toJson());
         }

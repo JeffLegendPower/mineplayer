@@ -3,45 +3,35 @@ package io.github.jefflegendpower.mineplayerclient.human;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.github.jefflegendpower.mineplayerclient.client.MineplayerClient;
-import io.github.jefflegendpower.mineplayerclient.env.Observation;
+import io.github.jefflegendpower.mineplayerclient.human.screen.HumanResetScreen;
+import io.github.jefflegendpower.mineplayerclient.human.screen.HumanStartScreen;
 import io.github.jefflegendpower.mineplayerclient.utils.StringByteUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.GameMenuScreen;
-import net.minecraft.client.gui.screen.LevelLoadingScreen;
-import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HumanResetter {
 
     private PrintWriter out;
-    private OutputStream outputStream;
-    private Supplier<Observation> getObservation;
 
-    public HumanResetter(PrintWriter out, OutputStream outputStream, Supplier<Observation> getObservation) {
+    public HumanResetter(PrintWriter out) {
         this.out = out;
-        this.outputStream = outputStream;
-        this.getObservation = getObservation;
     }
 
     private final Identifier resetEnvIdentifier = MineplayerClient.mineplayerIdentifier("env_reset");
 
     private AtomicBoolean reset = new AtomicBoolean(false);
 
-    public boolean reset(String resetMessage, boolean firstTime) {
+    public boolean reset(boolean firstTime) {
         try {
-            MineplayerClient.getVirtualKeyboard().clearKeys();
-            MineplayerClient.getVirtualMouse().resetMouse();
-
             ClientPlayNetworking.registerGlobalReceiver(resetEnvIdentifier, this::resetReceiver);
 
             ClientPlayNetworking.send(resetEnvIdentifier, generateResetPayload());
@@ -53,11 +43,37 @@ public class HumanResetter {
             reset.set(false);
 
             // TODO add gui to confirm start/stop stuff
+            AtomicInteger responded = new AtomicInteger(0);
+            MineplayerClient.runOnMainThread(() -> {
+                if (firstTime) {
+                    MinecraftClient.getInstance().setScreen(new HumanStartScreen(
+                            () -> responded.set(1),
+                            () -> responded.set(2)
+                    ));
+                } else {
+                    MinecraftClient.getInstance().setScreen(new HumanResetScreen(
+                            () -> responded.set(1),
+                            () -> responded.set(2)
+                    ));
+                }
+            });
 
-            out.println(envClientResponse(true));
+            while (responded.get() == 0)
+                Thread.sleep(100);
 
-            String frame = getObservation.get().getFrameBase64();
-            out.println(frame);
+            if (responded.get() == 1) {
+                out.println(envClientResponse(true));
+                StateQueue.start();
+            } else {
+                JsonObject response = new JsonObject();
+                response.addProperty("context", "reset");
+                JsonObject body = new JsonObject();
+                body.addProperty("status", "user_cancelled");
+                response.add("body", body);
+                out.println(response);
+                return false;
+            }
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,12 +119,6 @@ public class HumanResetter {
         JsonObject clientEnvResetBody = new JsonObject();
         clientEnvReset.addProperty("context", "reset");
         clientEnvResetBody.addProperty("status", success ? "success" : "failure");
-
-        if (success) {
-            // the window is handled by the python package using openCV and OBS
-            Observation obs = getObservation.get();
-            clientEnvResetBody.add("observation", obs.toJson());
-        }
 
         clientEnvReset.add("body", clientEnvResetBody);
 

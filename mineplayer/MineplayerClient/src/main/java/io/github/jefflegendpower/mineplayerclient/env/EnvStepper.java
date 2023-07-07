@@ -5,19 +5,18 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.github.jefflegendpower.mineplayerclient.client.MineplayerClient;
+import io.github.jefflegendpower.mineplayerclient.state.Observation;
 import io.github.jefflegendpower.mineplayerclient.utils.StringByteUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.main.Main;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -75,9 +74,6 @@ public class EnvStepper implements EnvContextHandler {
 
             step.set(false);
             out.println(envClientResponse(true, terminated.get(), reward.get()));
-//            byte[] frame = getObservation.get().getFrame();
-//            outputStream.write(frame, 0, frame.length);
-//            outputStream.flush();
 
             String frame = getObservation.get().getFrameBase64();
             out.println(frame);

@@ -33,8 +33,8 @@ def get_model(num_keys, num_buttons):
 
 
 def test_mineplayer():
-    install_minecraft_server(25565)
-    server = launch_minecraft_server()
+    # install_minecraft_server(25565)
+    # server = launch_minecraft_server()
 
     def button_click():
         # This function is called when the button is clicked
@@ -187,7 +187,7 @@ def test_mineplayer():
 
     env.close()
 
-    server.terminate()
+    # server.terminate()
 
 
 if __name__ == '__main__':

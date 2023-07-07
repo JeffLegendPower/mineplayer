@@ -3,6 +3,7 @@ package io.github.jefflegendpower.mineplayerclient.human;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.github.jefflegendpower.mineplayerclient.client.MineplayerClient;
+import io.github.jefflegendpower.mineplayerclient.human.screen.HumanStartScreen;
 import io.github.jefflegendpower.mineplayerclient.utils.StringByteUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -17,6 +18,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.util.Identifier;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.minecraft.client.gui.screen.ConnectScreen.connect;
 
@@ -55,24 +57,23 @@ public class HumanStarter {
                 Thread.sleep(100);
             }
 
-
-
             started.set(false);
 
             return true;
+
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public String generateClientStartMessage(boolean success) {
+    public JsonObject generateClientStartMessage(boolean success) {
         JsonObject startMessage = new JsonObject();
         startMessage.addProperty("context", "start");
         JsonObject body = new JsonObject();
         body.addProperty("status", success ? "success" : "failure");
         startMessage.add("body", body);
-        return startMessage.toString();
+        return startMessage;
     }
 
     private void startReceiver(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {

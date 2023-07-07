@@ -1,11 +1,16 @@
-package io.github.jefflegendpower.mineplayerclient.env;
+package io.github.jefflegendpower.mineplayerclient.state;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.jefflegendpower.mineplayerclient.client.MineplayerClient;
+import io.github.jefflegendpower.mineplayerclient.inputs.VideoInput;
 import io.github.jefflegendpower.mineplayerclient.utils.StringByteUtils;
 import org.apache.commons.codec.binary.Base64;
 
+import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Observation {
 
@@ -79,5 +84,41 @@ public class Observation {
 
     public double getMouseY() {
         return currentMouseY;
+    }
+
+    public static Observation getObservation(VideoInput videoInput, boolean active) {
+        if (!active) return null;
+        ByteBuffer buffer = ByteBuffer.allocateDirect(videoInput.bufferSize());
+        AtomicInteger success = new AtomicInteger(0);
+        RenderSystem.recordRenderCall(() -> {
+            try {
+                videoInput.getRGBFrame(buffer);
+                success.set(1);
+            } catch (Exception e) {
+                e.printStackTrace();
+                success.set(2);
+            }
+        });
+
+        while (success.get() == 0 && success.get() != 2) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        buffer.position(0);
+        byte[] rgb = new byte[buffer.capacity()];
+        buffer.get(rgb);
+        return new Observation(
+                MineplayerClient.getVirtualKeyboard().getKeyStates(),
+                MineplayerClient.getVirtualMouse().getButtonStates(),
+                MineplayerClient.getVirtualMouse().getMouseX(),
+                MineplayerClient.getVirtualMouse().getMouseY(),
+                videoInput.getWidth(),
+                videoInput.getHeight(),
+                rgb
+        );
     }
 }

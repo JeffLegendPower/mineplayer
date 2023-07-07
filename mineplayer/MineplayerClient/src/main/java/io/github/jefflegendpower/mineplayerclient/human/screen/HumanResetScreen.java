@@ -7,14 +7,12 @@ import net.minecraft.text.Text;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class HumanStartScreen extends Screen {
+public class HumanResetScreen extends Screen {
 
     private static final String TEXT_BODY_RAW = """
-            Welcome to Mineplayer!
-            Press "Start" to start the environment.
+            Press "Continue" to start the environment.
             Press "Exit" to close the environment.
             At any time press esc to close the environment.
             """;
@@ -23,14 +21,14 @@ public class HumanStartScreen extends Screen {
             .map(Text::literal)
             .collect(Collectors.toList());
 
-    private static final Text TEXT_START = Text.literal("Start");
+    private static final Text TEXT_START = Text.literal("Continue");
     private static final Text TEXT_EXIT = Text.literal("Exit");
 
     private final Runnable start;
     private final Runnable exit;
 
-    public HumanStartScreen(Runnable start, Runnable exit) {
-        super(Text.literal("Start Human Play"));
+    public HumanResetScreen(Runnable start, Runnable exit) {
+        super(Text.literal("Continue Human Play"));
         this.start = start;
         this.exit = exit;
     }
@@ -52,7 +50,7 @@ public class HumanStartScreen extends Screen {
 
         super.render(matrices, mouseX, mouseY, delta);
 
-        drawTextWithShadow(matrices, this.textRenderer, Text.literal("Start Recording"), centerX("Start Recording"), 32, 0xff0000);
+        drawTextWithShadow(matrices, this.textRenderer, Text.literal("Continue Recording"), centerX("Continue Recording"), 32, 0xff0000);
 
         for (int i = 0; i <= TEXT_BODY.size(); i++) {
             if (TEXT_BODY.get(i).getString().isEmpty()) continue;

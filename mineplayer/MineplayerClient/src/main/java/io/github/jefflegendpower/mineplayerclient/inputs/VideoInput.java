@@ -37,23 +37,6 @@ public class VideoInput {
         this.fbo.endWrite();
         GlStateManager._enableDepthTest();
         MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
-//        BufferedImage exampleImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-//        for (int x = 0; x < width; x++) {
-//            for (int y = 0; y < height; y++) {
-//                int i = (x + (width * y)) * 4;
-//                int r = buffer.get(i) & 0xFF;
-//                int g = buffer.get(i + 1) & 0xFF;
-//                int b = buffer.get(i + 2) & 0xFF;
-//                exampleImage.setRGB(x, height - y, (0xFF << 24) | (r << 16) | (g << 8) | b);
-//            }
-//        }
-//
-//        File outputfile = new File("test_save.png");
-//        try {
-//            ImageIO.write(exampleImage, "png", outputfile);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
     }
 
     public int bufferSize() {

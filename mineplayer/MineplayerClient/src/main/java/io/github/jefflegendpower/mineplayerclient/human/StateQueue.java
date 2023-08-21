@@ -18,9 +18,11 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class StateQueue {
@@ -33,7 +35,7 @@ public class StateQueue {
 
     private static boolean initialized = false;
     private static final AtomicInteger terminationKey = new AtomicInteger(-1);
-    private static Observation observation = null;
+    private static AtomicReference<Observation> observation = new AtomicReference<>();
     private static Runnable onTermination;
 
     public static void initialize(int terminationKey,
@@ -48,26 +50,28 @@ public class StateQueue {
         ClientPlayNetworking.registerGlobalReceiver(stepEnvIdentifier,
                 StateQueue::stepReceiver);
 
-        ClientTickEvents.START_CLIENT_TICK.register((client) -> {
+        ClientTickEvents.START_CLIENT_TICK.register((client) -> CompletableFuture.runAsync(() -> {
             if (!active.get()) return;
-            observation = getObservation.get();
-        });
+            observation.set(getObservation.get());
+        }));
 
-        ClientTickEvents.END_CLIENT_TICK.register((client) -> {
+        ClientTickEvents.END_CLIENT_TICK.register((client) -> CompletableFuture.runAsync(() -> {
+
             if (!active.get() || observation == null) return;
             Action action = getAction.get();
-            queue.add(new State(observation, action));
+            queue.add(new State(observation.get(), action));
 
             if (InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), terminationKey)) {
                 active.set(false);
-                if (onTermination != null)
+                if (onTermination != null) {
                     onTermination.run();
+                }
             }
 
             if (!checked.get()) return;
             checked.set(false);
             ClientPlayNetworking.send(stepEnvIdentifier, generateStepPayload());
-        });
+        }));
 
         initialized = true;
     }
@@ -101,12 +105,13 @@ public class StateQueue {
 
         if (body.get("terminated").getAsBoolean()) {
             active.set(false);
-            if (onTermination != null)
+            if (onTermination != null) {
                 onTermination.run();
+            }
         }
 
         checked.set(true);
-        ClientPlayNetworking.unregisterGlobalReceiver(stepEnvIdentifier);
+//        ClientPlayNetworking.unregisterGlobalReceiver(stepEnvIdentifier);
     }
 
     public static void start() {

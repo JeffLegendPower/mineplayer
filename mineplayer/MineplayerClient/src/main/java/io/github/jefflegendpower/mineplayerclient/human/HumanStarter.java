@@ -29,8 +29,8 @@ public class HumanStarter {
 
     public boolean start(String startMessage) {
         try {
-            JsonObject envstartMessage = new Gson().fromJson(startMessage, JsonObject.class);
-            JsonObject body = connectToServer(envstartMessage);
+            JsonObject envStartMessage = new Gson().fromJson(startMessage, JsonObject.class);
+            JsonObject body = connectToServer(envStartMessage);
 
             ClientPlayNetworking.registerGlobalReceiver(startEnvIdentifier, this::startReceiver);
 
@@ -80,7 +80,7 @@ public class HumanStarter {
         Gson gson = new Gson();
         String message = StringByteUtils.dataToString(buf);
         JsonObject envstartResponse = gson.fromJson(message, JsonObject.class);
-        if (!envstartResponse.get("context").getAsString().equals("start"))
+        if (!envstartResponse.get("context").getAsString().equals("init"))
             throw new RuntimeException("Invalid context for start message, got: " + envstartResponse.get("context").getAsString());
         JsonObject body = envstartResponse.getAsJsonObject("body");
         if (body.get("status").getAsString().equals("success")) {

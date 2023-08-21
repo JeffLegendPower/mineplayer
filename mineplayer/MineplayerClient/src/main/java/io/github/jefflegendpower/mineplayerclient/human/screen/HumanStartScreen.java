@@ -54,7 +54,7 @@ public class HumanStartScreen extends Screen {
 
         drawTextWithShadow(matrices, this.textRenderer, Text.literal("Start Recording"), centerX("Start Recording"), 32, 0xff0000);
 
-        for (int i = 0; i <= TEXT_BODY.size(); i++) {
+        for (int i = 0; i < TEXT_BODY.size(); i++) {
             if (TEXT_BODY.get(i).getString().isEmpty()) continue;
             drawTextWithShadow(matrices, this.textRenderer, TEXT_BODY.get(i), centerX(TEXT_BODY.get(i).getString()), 80 + i * 12, 0xffffff);
         }

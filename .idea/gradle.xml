@@ -4,10 +4,8 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/mineplayer/MineplayerClient" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../../Gradle/gradle-6.9.3" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="17" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/mineplayer/MineplayerClient" />
@@ -15,10 +13,8 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
-        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/mineplayer/MineplayerServer" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../../Gradle/gradle-6.9.3" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="17 (2)" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/mineplayer/MineplayerServer" />

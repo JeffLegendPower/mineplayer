@@ -41,7 +41,7 @@ def install_minecraft_client():
     print("Installed mineplayer mod")
 
 
-def launch_minecraft_client(bot_name, version="fabric-loader-0.14.19-1.19.4"):
+def launch_minecraft_client(bot_name, version="fabric-loader-0.14.21-1.19.4"):
     minecraft_directory = minecraft_launcher_lib.utils.get_minecraft_directory()
 
     options = minecraft_launcher_lib.utils.generate_test_options()

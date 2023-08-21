@@ -7,6 +7,7 @@ from keras.layers import Dense, Input, Conv2D, Flatten
 from tensorflow import keras
 
 from mineplayer.envs import MineplayerEnv
+from mineplayer.human import HumanEnv
 from mineplayer.minecraft.minecraft_server_launcher import install_minecraft_server, launch_minecraft_server
 
 import tkinter as tk
@@ -33,8 +34,8 @@ def get_model(num_keys, num_buttons):
 
 
 def test_mineplayer():
-    # install_minecraft_server(25565)
-    # server = launch_minecraft_server()
+    install_minecraft_server(25565)
+    server = launch_minecraft_server()
 
     def button_click():
         # This function is called when the button is clicked
@@ -189,8 +190,43 @@ def test_mineplayer():
 
     # server.terminate()
 
+def test_human_env():
+    try:
+        install_minecraft_server(25565)
+        server = launch_minecraft_server(ramGB=3)
+
+        def button_click():
+            # This function is called when the button is clicked
+            window.destroy()  # Close the window
+        # Continue with the rest of your code here
+
+        window = tk.Tk()
+
+        # Create a button widget
+        button = tk.Button(window, text="Click Me", command=button_click)
+        button.pack()
+
+        # Start the main event loop
+        window.mainloop()
+
+        env = HumanEnv(
+            output_dir="/Users/ishaangoyal/IdeaProjects/mineplayer/tests/data",
+            keys=["87", "65", "83", "68", "32"],
+            mouse_buttons=["0", "1"],
+            env_type="treechop",
+            props={
+                "log_goal": 4
+            },
+            window_width=320,
+            window_height=180,
+        )
+    finally:
+        server.terminate()
+        env.minecraft_client.terminate()
+
 
 if __name__ == '__main__':
     print("Start testing mineplayer...")
-    test_mineplayer()
+    # test_mineplayer()
+    test_human_env()
     print("Test complete")

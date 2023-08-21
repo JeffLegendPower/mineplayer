@@ -35,10 +35,14 @@ public class Action {
         JsonArray mouseTogglesJson = new JsonArray();
         for (int mouseCode : mouseToggles) mouseTogglesJson.add(mouseCode);
 
-        JsonArray mousePos = new JsonArray();
-        mousePos.add(mouseMoveX);
-        mousePos.add(mouseMoveY);
+        JsonArray mouseMove = new JsonArray();
+        mouseMove.add(mouseMoveX);
+        mouseMove.add(mouseMoveY);
 
+        body.add("key_toggles", keyTogglesJson);
+        body.add("mouse_toggles", mouseTogglesJson);
+        body.add("mouse_move", mouseMove);
+        return body;
     }
 
     public Set<Integer> getKeyToggles() {

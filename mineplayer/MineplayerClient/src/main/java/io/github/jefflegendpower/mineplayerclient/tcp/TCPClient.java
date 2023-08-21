@@ -3,6 +3,7 @@ package io.github.jefflegendpower.mineplayerclient.tcp;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.github.jefflegendpower.mineplayerclient.env.Environment;
+import io.github.jefflegendpower.mineplayerclient.human.HumanEnvironment;
 
 import java.io.*;
 import java.net.Socket;
@@ -89,6 +90,9 @@ public class TCPClient {
     private void humanHandler() throws IOException {
         String initMessage = readMessage(in);
         System.out.println("Init message received");
+
+        HumanEnvironment env = new HumanEnvironment(out, clientSocket.getOutputStream(), this::disconnect);
+        env.start(initMessage);
     }
 
     public void stop() {

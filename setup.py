@@ -38,15 +38,13 @@ class BuildAndInstallCommand(install):
             [f"{copy}",
              os.path.join(
                  mydir, "mineplayer", "MineplayerClient", "build", "libs", "MineplayerClient-1.0.0.jar"),
-             os.path.join(mydir, 'mineplayer')],
-            cwd=mydir, shell=True)
+             os.path.join(mydir, 'mineplayer')])
 
         subprocess.check_output(
             [f"{copy}",
                 os.path.join(
                     mydir, "mineplayer", "MineplayerServer", "build", "libs", "MineplayerServer-1.0.0.jar"),
-                os.path.join(mydir, 'mineplayer')],
-            cwd=mydir, shell=True)
+                os.path.join(mydir, 'mineplayer')])
 
         # Call the parent run() method to complete the installation
         install.run(self)

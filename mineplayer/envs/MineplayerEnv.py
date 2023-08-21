@@ -7,24 +7,27 @@ import numpy as np
 from PIL import Image
 from gymnasium import spaces
 import sys
+from utils import encoded_frame_to_image
 
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(parent_dir, "minecraft"))
+# sys.path.insert(0, os.path.join(parent_dir, "minecraft"))
+# sys.path.insert(0, parent_dir)
+# sys.path.insert(2, os.path.join())
 
-from minecraft_client_launcher import install_minecraft_client, launch_minecraft_client
+from minecraft import install_minecraft_client, launch_minecraft_client
 
 
 class MineplayerEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, mc_server_address="localhost", mc_server_port=25565, connection_timeout=90.0, env_type="treechop",
-                 headless=False, window_width=640, window_height=360,
+    def __init__(self, mc_server_address="localhost", mc_server_port=25565, connection_timeout=None, env_type="treechop",
+                 headless=False, window_width=640, window_height=360, username="TESTBOT",
                  props: dict = {},
                  num_keys=5, num_mouse_buttons=2
                  ):
 
         install_minecraft_client()
-        self.minecraft_client = launch_minecraft_client("RicketyRot")
+        self.minecraft_client = launch_minecraft_client(username)
 
         self.running = True
 
@@ -71,7 +74,7 @@ class MineplayerEnv(gym.Env):
         response = json.loads(response)
 
         if response["context"] != "init":
-            raise ValueError(f"Received invalid response from Minecraft client: {response}")
+            raise ValueError(f"Received invalid response from Minecraft client, expected init, got {response}")
         if response["body"]["status"] != "success":
             raise ValueError(
                 f"Received error response from Minecraft client (check Minecraft logs for error): {response}")
@@ -138,14 +141,15 @@ class MineplayerEnv(gym.Env):
             bytes_to_receive = min(encoded_length - len(encoded_frame), 4096)
             encoded_frame += self.client_socket.recv(bytes_to_receive)
 
-        frame_string = encoded_frame.decode('utf-8').rstrip('\r\n')
-        frame_buffer = base64.b64decode(frame_string)
-
-        np_image = np.frombuffer(frame_buffer, dtype=np.uint8).reshape((image_height, image_width, 4))
-        np_image = np_image[:, :, :3]
-
-        image = Image.fromarray(np_image, 'RGB')
-        image = image.transpose(Image.FLIP_TOP_BOTTOM)
+        # frame_string = encoded_frame.decode('utf-8').rstrip('\r\n')
+        # frame_buffer = base64.b64decode(frame_string)
+        #
+        # np_image = np.frombuffer(frame_buffer, dtype=np.uint8).reshape((image_height, image_width, 4))
+        # np_image = np_image[:, :, :3]
+        #
+        # image = Image.fromarray(np_image, 'RGB')
+        # image = image.transpose(Image.FLIP_TOP_BOTTOM)
+        image = encoded_frame_to_image(encoded_frame, image_width, image_height)
 
         obs["window"] = np.array(image)
 
@@ -201,14 +205,15 @@ class MineplayerEnv(gym.Env):
             bytes_to_receive = min(encoded_length - len(encoded_frame), 4096)
             encoded_frame += self.client_socket.recv(bytes_to_receive)
 
-        frame_string = encoded_frame.decode('utf-8').rstrip('\r\n')
-        frame_buffer = base64.b64decode(frame_string)
-
-        np_image = np.frombuffer(frame_buffer, dtype=np.uint8).reshape((image_height, image_width, 4))
-        np_image = np_image[:, :, :3]
-
-        image = Image.fromarray(np_image, 'RGB')
-        image = image.transpose(Image.FLIP_TOP_BOTTOM)
+        # frame_string = encoded_frame.decode('utf-8').rstrip('\r\n')
+        # frame_buffer = base64.b64decode(frame_string)
+        #
+        # np_image = np.frombuffer(frame_buffer, dtype=np.uint8).reshape((image_height, image_width, 4))
+        # np_image = np_image[:, :, :3] # Remove alpha channel
+        #
+        # image = Image.fromarray(np_image, 'RGB')
+        # image = image.transpose(Image.FLIP_TOP_BOTTOM)
+        image = encoded_frame_to_image(encoded_frame, image_width, image_height)
 
         obs["window"] = np.array(image)
 

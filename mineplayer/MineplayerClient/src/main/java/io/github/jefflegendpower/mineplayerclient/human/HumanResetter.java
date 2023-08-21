@@ -47,13 +47,25 @@ public class HumanResetter {
             MineplayerClient.runOnMainThread(() -> {
                 if (firstTime) {
                     MinecraftClient.getInstance().setScreen(new HumanStartScreen(
-                            () -> responded.set(1),
-                            () -> responded.set(2)
+                            () -> {
+                                responded.set(1);
+                                MinecraftClient.getInstance().setScreen(null);
+                            },
+                            () -> {
+                                responded.set(2);
+                                MinecraftClient.getInstance().setScreen(null);
+                            }
                     ));
                 } else {
                     MinecraftClient.getInstance().setScreen(new HumanResetScreen(
-                            () -> responded.set(1),
-                            () -> responded.set(2)
+                            () -> {
+                                responded.set(1);
+                                MinecraftClient.getInstance().setScreen(null);
+                            },
+                            () -> {
+                                responded.set(2);
+                                MinecraftClient.getInstance().setScreen(null);
+                            }
                     ));
                 }
             });

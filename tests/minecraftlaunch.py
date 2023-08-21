@@ -34,21 +34,24 @@ import requests
 
 if __name__ == '__main__':
     # install_minecraft()
-    minecraft_directory = r"C:\Users\goyal_hfho3dz\AppData\Roaming\.tlauncher\legacy\Minecraft\game"
+    # minecraft_directory = r"C:\Users\goyal_hfho3dz\AppData\Roaming\.tlauncher\legacy\Minecraft\game"
+    minecraft_directory = minecraft_launcher_lib.utils.get_minecraft_directory()
+    print(minecraft_directory)
 
     # print(minecraft_launcher_lib.utils.get_available_versions(minecraft_directory)[-1])
 
     for version in minecraft_launcher_lib.utils.get_available_versions(minecraft_launcher_lib.utils.get_minecraft_directory()):
         print(version['id'])
 
-    # minecraft_launcher_lib.fabric.install_fabric("1.19.4", minecraft_directory)
+    minecraft_launcher_lib.fabric.install_fabric("1.19.4", minecraft_directory)
 
-    # minecraft_launcher_lib.utils.get_installed_versions(minecraft_launcher_lib.utils.get_minecraft_directory())
+    for version in minecraft_launcher_lib.utils.get_installed_versions(minecraft_launcher_lib.utils.get_minecraft_directory()):
+        print(version['id'])
 
     options = minecraft_launcher_lib.utils.generate_test_options()
     options["username"] = "JeffLegendPower"
 
-    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command("fabric-loader-0.14.19-1.19.4", minecraft_directory, options)
+    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command("fabric-loader-0.14.21-1.19.4", minecraft_directory, options)
     print(minecraft_command)
 
     # popen = subprocess.Popen(minecraft_command)

@@ -2,6 +2,14 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MineplayerClient.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MineplayerClient.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MineplayerClient.test.iml" filepath="$PROJECT_DIR$/.idea/modules/MineplayerClient.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MineplayerServer.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MineplayerServer.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MineplayerServer.test.iml" filepath="$PROJECT_DIR$/.idea/modules/MineplayerServer.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/io.github.jefflegendpower.MineplayerClient.main.iml" filepath="$PROJECT_DIR$/.idea/modules/io.github.jefflegendpower.MineplayerClient.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/io.github.jefflegendpower.MineplayerClient.test.iml" filepath="$PROJECT_DIR$/.idea/modules/io.github.jefflegendpower.MineplayerClient.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/io.github.jefflegendpower.MineplayerServer.main.iml" filepath="$PROJECT_DIR$/.idea/modules/io.github.jefflegendpower.MineplayerServer.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/io.github.jefflegendpower.MineplayerServer.test.iml" filepath="$PROJECT_DIR$/.idea/modules/io.github.jefflegendpower.MineplayerServer.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/mineplayer.iml" filepath="$PROJECT_DIR$/.idea/mineplayer.iml" />
     </modules>
   </component>

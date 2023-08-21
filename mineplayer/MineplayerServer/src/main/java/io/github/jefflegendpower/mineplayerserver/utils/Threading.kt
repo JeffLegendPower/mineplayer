@@ -8,8 +8,8 @@ import org.bukkit.Bukkit
  * @param runnable The runnable to run on the main thread
  */
 fun runOnMainThread(runnable: Runnable) {
-    val supplier: () -> Boolean = { runnable.run(); true }
-    Bukkit.getScheduler().callSyncMethod(MineplayerServer.instance, supplier).get()
+    Bukkit.getScheduler().runTask(MineplayerServer.instance, runnable)
+//    Bukkit.getScheduler().callSyncMethod(MineplayerServer.instance, supplier).get()
 }
 
 /**

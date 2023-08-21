@@ -56,7 +56,7 @@ class TreeChop(player: Player, props: JsonObject) : EnvType("treechop", player) 
             val result = supplyFromMainThread {
 
                 if (worldManager.getMVWorld(worldName) != null)
-                    delAndRemoveWorldSafe(worldName, player)
+                    delAndRemoveWorld(worldName, player)
 
                 worldManager.cloneWorld(
                     "treechop_template",
@@ -70,11 +70,13 @@ class TreeChop(player: Player, props: JsonObject) : EnvType("treechop", player) 
                 val spawnLocation = world.spawnLocation
                 spawnLocation.set(-215.4, 64.0, 71.1)
 
+                player.inventory.clear()
+                world.time = "morning"
+
                 return@supplyFromMainThread player.teleportAsync(spawnLocation)
             }
 
             result.join()
-
             returnMessage.addProperty("status", "success")
             terminated = false
             return returnMessage
@@ -85,7 +87,6 @@ class TreeChop(player: Player, props: JsonObject) : EnvType("treechop", player) 
             returnMessage.addProperty("reason", e.message)
             return returnMessage
         }
-
     }
 
     override fun step(props: JsonObject): JsonObject {
@@ -138,12 +139,17 @@ class TreeChop(player: Player, props: JsonObject) : EnvType("treechop", player) 
         }
     }
 
+    private fun delAndRemoveWorld(worldName: String, player: Player) {
+        LobbyWorld.getSpawnLocation().let {
+            player.teleportAsync(it) }
+        worldManager.deleteWorld(worldName, true)
+        WorldRegistry.removeWorld(worldName)
+    }
+
     private fun delAndRemoveWorldSafe(worldName: String, player: Player) {
         runOnMainThread {
-            LobbyWorld.getSpawnLocation().let { player.teleportAsync(it) }
-            worldManager.deleteWorld(worldName, true)
+            delAndRemoveWorld(worldName, player)
         }
-        WorldRegistry.removeWorld(worldName)
     }
 
     private var oldWoodInInv = 0
